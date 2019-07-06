@@ -58,10 +58,10 @@ public class BackgroundActivitiesOverview {
 
         JSONObject obj = new JSONObject();
 
-        obj.accumulate("scheduled", scheduled);
-        obj.accumulate("running", running);
-        obj.accumulate("completed", completed);
-        obj.accumulate("aborted", aborted);
+        obj.put("scheduled", scheduled);
+        obj.put("running", running);
+        obj.put("completed", completed);
+        obj.put("aborted", aborted);
 
         return obj;
 
