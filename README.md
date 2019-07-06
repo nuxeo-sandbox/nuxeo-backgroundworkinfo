@@ -3,13 +3,96 @@
 
 **WARNING**: This is **W**ork **I**n **P**rogress
 
-Getting info about the background work: Mainly Workers, Bulk Action Framework and asynchronous Event Handlers (aka Listeners).
+Getting info about the background work: Mainly Workers. WIP is trying to get also info from Bulk Action Framework/Streams and asynchronous Event Handlers (aka Listeners). Most asynchronous listeners actually run in workers, but still, we want to get more info if possible.
 
-One important concept to understand is that the info returned is valid only at the exact time it was fetched. This is the intrinsic way asynchronous/background jobs work: The info can return "10 workers" when it is called, and return 100 or 0 one millisecond later.
+## WARNING: Such Info is Highly Ephemeral
+One important concept to understand is that the info returned is valid only at the exact time it was fetched. This is the intrinsic way asynchronous/background jobs work: The info can return "10 workers" when it is called, and return 100 or 0 0.2 millisecond later.
+
+## Usage
+The plugin exposes a class, `InfoFetcher` that, well, fetches the info.
+
+#### As of today-now: Only workers.
+
+It also contributes a new operation: `BackgroundWork.Overview`
+
+### Operation: BackgroundWork.Overview
+
+* Input/output: `void`
+* Parameter(s)
+  * `infoType`, string. Possible values: `"Basic"` and `"Overview"`. Default is `"Basic"`
+* The operation fills the `BackgroundWorkOverview` context variable with a JSON string whose value depends on `infoType`. From JS Automation, you can then call `JSON.Parse(ctx. BackgroundWorkOverview)` and handle the result as you wish.
+
+##### => If `infoType` is `"Basic"`...
+...then `BackgroundWorkOverview` is a JSON object (as string):
+
+```
+{
+  scheduled: number,
+  running: number,
+  completed: number,
+  aborted: number
+}
+```
+These are global values, no details, they are the total number of background activities. (**WARNING**: As this is Work In Progress, we have only Workers info, not BAF/Streams/etc.)
+
+##### => Else, if `infoType` is `"Overview"`...
+...then `BackgroundWorkOverview` is a is a JSON Array (as string). Each object in the array is:
+
+```
+{
+  name: string
+  scheduled: number,
+  running: number,
+  completed: number,
+  aborted: number
+}
+```
+
+Again, **WARNING**: As this is Work In Progress, we have only Workers info, not BAF/Streams/etc.
+
+The `name` is the info declared in the configuration. For example, for workers, it is the ID of the Queue they belong to.
+
+Here is an example of simple output:
+
+```
+[
+  {
+    "name": "default",
+    "running": 2,
+    "scheduled": 12,
+    "aborted": 0,
+    "completed": 421
+  },
+  {
+    "name": "fulltextUpdater",
+    "running": 2,
+    "scheduled": 18,
+    "aborted": 0,
+    "completed": 234
+  },
+  {
+    "name": "updateACEStatus",
+    "running": 0,
+    "scheduled": 0,
+    "aborted": 0,
+    "completed": 0
+  },
+  {
+    "name": "myCustomWorker",
+    "running": 4,
+    "scheduled": 0,
+    "aborted": 0,
+    "completed": 27
+  };
+  . . .
+]
+```
+
+
 
 
 ## WARNINGS
-* **W**ork **I**n **P**rogress, as stated above (but we say it again here)
+* **W**ork **I**n **P**rogress, as stated above (but we say it again here). SO far only Workers are handled.
 * This work is **not supported** until it is written it is supported
 
 
@@ -21,7 +104,7 @@ One important concept to understand is that the info returned is valid only at t
 
 
 ## Known limitations
-This plugin is a work in progress.
+This plugin is a work in progress and handles only Workers, not the Bulk Action Framework, the streams, ...
 
 
 

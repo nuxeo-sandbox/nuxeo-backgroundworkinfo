@@ -46,7 +46,7 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 public class TestGetOverview {
 
     @Test
-    public void testGetOverviewBasic() {
+    public void testGetOverviewBasic() throws Exception {
 
         InfoFetcher fetcher = InfoFetcher.getInstance();
         BgActivitiesOverviewBasic overview = fetcher.fetchOverviewBasic();
@@ -81,7 +81,7 @@ public class TestGetOverview {
         InfoFetcher fetcher = InfoFetcher.getInstance();
         BgActivitiesOverview overview = fetcher.fetchOverview();
         assertNotNull(overview);
-
+        
         JSONArray array = overview.toJson();
         JSONObject obj = TestUtils.getDummyWorkerOverview(array);
         assertNotNull(obj);
