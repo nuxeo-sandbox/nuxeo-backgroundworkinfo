@@ -18,16 +18,10 @@
  */
 package nuxeo.backgroundworkinfo;
 
-import java.util.ArrayList;
-
-import nuxeo.backgroundworkinfo.workers.WorkersInfo;
+import nuxeo.backgroundworkinfo.workers.BgActivitiesInfoWorkers;
 
 /**
- * Usage:
- * BackgroundActivitiesOverview overview = InfoFetcher.getInstance().getOverview();
- * . . . use overview . . .
- * ArrayList<BackgroundActivityInfo> activities = InfoFetcher.getInstance().getDetails();
- * . . . use activities . . .
+ * Main entry point to fetch background activities info.
  * 
  * @since 10.10
  */
@@ -37,20 +31,26 @@ public class InfoFetcher {
 
     public static final String LOCK = "InfoFetcherLock";
 
-    public static final String RUN_OVERVIEW_LOCK = "RunOverviewLock";
+    public static final String RUN_OVERVIEWBASIC_LOCK = "RunOverviewBasicLock";
 
-    public static final String RUN_DETAILS_LOCK = "RunDetailsLock";
+    protected boolean fetchingOverviewBasic = false;
+
+    protected BgActivitiesOverviewBasic overviewBasic = new BgActivitiesOverviewBasic();
+
+    public static final String RUN_OVERVIEW_LOCK = "RunOverviewLock";
 
     protected boolean fetchingOverview = false;
 
-    protected boolean fetchingDetails = false;
-
-    protected BackgroundActivitiesOverview overview = new BackgroundActivitiesOverview();
+    protected BgActivitiesOverview overview = new BgActivitiesOverview();
 
     private InfoFetcher() {
 
     }
 
+    /**
+     * @return the singleton instance
+     * @since 10.10
+     */
     public static InfoFetcher getInstance() {
 
         if (instance == null) {
@@ -64,16 +64,22 @@ public class InfoFetcher {
         return instance;
     }
 
-    public BackgroundActivitiesOverview getOverview() {
+    /**
+     * Return the basic overview: Just count of running/scheduled/etc., no names/titles/IDs, no details
+     * 
+     * @return the basic overview
+     * @since 10.10
+     */
+    public BgActivitiesOverviewBasic fetchOverviewBasic() {
 
-        if (!fetchingOverview) {
-            synchronized (RUN_OVERVIEW_LOCK) {
-                if (!fetchingOverview) {
-                    fetchingOverview = true;
+        if (!fetchingOverviewBasic) {
+            synchronized (RUN_OVERVIEWBASIC_LOCK) {
+                if (!fetchingOverviewBasic) {
+                    fetchingOverviewBasic = true;
 
                     // Workers
-                    WorkersInfo workersInfo = new WorkersInfo();
-                    BackgroundActivitiesOverview overviewWorkers = workersInfo.fetchOverview();
+                    BgActivitiesInfoWorkers workersInfo = new BgActivitiesInfoWorkers();
+                    BgActivitiesOverviewBasic overviewWorkers = workersInfo.fetchOverviewBasic();
 
                     // BAF
                     // ...
@@ -81,8 +87,44 @@ public class InfoFetcher {
                     // Others...
 
                     // Merge
-                    overview.reset();
-                    overview.add(overviewWorkers);
+                    overviewBasic.reset();
+                    overviewBasic.add(overviewWorkers);
+                    // . . .
+
+                }
+            }
+            fetchingOverviewBasic = false;
+        }
+        return overviewBasic;
+
+    }
+
+    /**
+     * Return an array of background activities. Each entry has the namle of the activity (name/title/id of the object)
+     * and the number of running/scheduled/etc.
+     * 
+     * @return an array of activities
+     * @since 10.10
+     */
+    public BgActivitiesOverview fetchOverview() {
+
+        if (!fetchingOverview) {
+            synchronized (RUN_OVERVIEW_LOCK) {
+                if (!fetchingOverview) {
+                    fetchingOverview = true;
+
+                    // Workers
+                    BgActivitiesInfoWorkers workersInfo = new BgActivitiesInfoWorkers();
+                    BgActivitiesOverview overviewWorkers = workersInfo.fetchOverview();
+
+                    // BAF
+                    // ...
+
+                    // Others...
+
+                    // Merge
+                    overview = new BgActivitiesOverview();
+                    overview.addAll(overviewWorkers);
                     // . . .
 
                 }

@@ -26,7 +26,7 @@ import org.json.JSONObject;
  * 
  * @since 10.10
  */
-public class BackgroundActivitiesOverview {
+public class BgActivitiesOverviewBasic {
 
     public long scheduled = 0;
 
@@ -36,7 +36,7 @@ public class BackgroundActivitiesOverview {
 
     public long aborted = 0;
 
-    public BackgroundActivitiesOverview() {
+    public BgActivitiesOverviewBasic() {
 
     }
 
@@ -47,7 +47,7 @@ public class BackgroundActivitiesOverview {
         aborted = 0;
     }
 
-    public void add(BackgroundActivitiesOverview other) {
+    public void add(BgActivitiesOverviewBasic other) {
         scheduled += other.scheduled;
         running += other.running;
         completed += other.completed;

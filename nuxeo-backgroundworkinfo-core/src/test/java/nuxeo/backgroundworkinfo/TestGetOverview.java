@@ -18,6 +18,7 @@
  */
 package nuxeo.backgroundworkinfo;
 
+import static org.junit.Assert.assertEquals;
 /**
  * 
  * @since 10.10
@@ -25,6 +26,8 @@ package nuxeo.backgroundworkinfo;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.test.DefaultRepositoryInit;
@@ -39,27 +42,25 @@ import org.nuxeo.runtime.test.runner.FeaturesRunner;
 @Features(PlatformFeature.class)
 @RepositoryConfig(init = DefaultRepositoryInit.class, cleanup = Granularity.METHOD)
 @Deploy({ "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core",
-        "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core:fakework-contrib.xml" })
+        "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core:DummyWork-contrib.xml" })
 public class TestGetOverview {
 
     @Test
-    public void shouldGetOverviewInfo() {
+    public void testGetOverviewBasic() {
 
         InfoFetcher fetcher = InfoFetcher.getInstance();
-        BackgroundActivitiesOverview overview = fetcher.getOverview();
+        BgActivitiesOverviewBasic overview = fetcher.fetchOverviewBasic();
         assertNotNull(overview);
     }
 
     @Test
-    public void shouldGetOverviewWithAtLeastOneActiveWorker() throws Exception {
+    public void testGetOverviewBasicWithSomeWorkers() throws Exception {
 
         DummyWorker.startWorkers(DummyWorker.MAX_THREADS);
 
-        Thread.sleep(1000);
-
         InfoFetcher fetcher = InfoFetcher.getInstance();
-        
-        BackgroundActivitiesOverview overview = fetcher.getOverview();
+
+        BgActivitiesOverviewBasic overview = fetcher.fetchOverviewBasic();
         assertNotNull(overview);
 
         long runningCount = overview.running;
@@ -68,9 +69,51 @@ public class TestGetOverview {
         DummyWorker.stopWorkers();
         DummyWorker.awaitWorkersCompletion();
 
-        overview = fetcher.getOverview();
+        overview = fetcher.fetchOverviewBasic();
         assertNotNull(overview);
         assertTrue(overview.running <= (runningCount - DummyWorker.MAX_THREADS));
+
+    }
+
+    @Test
+    public void testGetOverview() throws Exception {
+
+        InfoFetcher fetcher = InfoFetcher.getInstance();
+        BgActivitiesOverview overview = fetcher.fetchOverview();
+        assertNotNull(overview);
+
+        JSONArray array = overview.toJson();
+        JSONObject obj = TestUtils.getDummyWorkerOverview(array);
+        assertNotNull(obj);
+        assertEquals(0, obj.getLong("running"));
+        assertEquals(0, obj.getLong("scheduled"));
+
+    }
+
+    @Test
+    public void testGetOverviewWithjSomeWorkers() throws Exception {
+
+        DummyWorker.startWorkers(DummyWorker.MAX_THREADS);
+
+        InfoFetcher fetcher = InfoFetcher.getInstance();
+        BgActivitiesOverview overview = fetcher.fetchOverview();
+        assertNotNull(overview);
+
+        JSONArray array = overview.toJson();
+        JSONObject obj = TestUtils.getDummyWorkerOverview(array);
+        assertNotNull(obj);
+        assertEquals(DummyWorker.MAX_THREADS, obj.getLong("running"));
+
+        DummyWorker.stopWorkers();
+        DummyWorker.awaitWorkersCompletion();
+
+        overview = fetcher.fetchOverview();
+        assertNotNull(overview);
+        array = overview.toJson();
+        obj = TestUtils.getDummyWorkerOverview(array);
+        assertNotNull(obj);
+        assertEquals(0, obj.getLong("running"));
+        assertTrue(obj.getLong("completed") >= DummyWorker.MAX_THREADS);
 
     }
 

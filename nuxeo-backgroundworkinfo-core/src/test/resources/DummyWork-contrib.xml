@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <component name="nuxeo.backgroundworkinfo.work.test" version="1.0">
 
+    <!--  WARNING: If you change values here, also change constants in DummyWorker class -->
 	<extension target="org.nuxeo.ecm.core.work.service"
 		point="queues">
-		<queue id="FakeWorker">
+		<queue id="DummyWorker">
 			<maxThreads>3</maxThreads>
-			<category>Fake Workers</category>
-			<name>FakeWorker</name>
+			<category>Dummy Workers</category>
+			<name>DummyWorker</name>
 		</queue>
 	</extension>
 

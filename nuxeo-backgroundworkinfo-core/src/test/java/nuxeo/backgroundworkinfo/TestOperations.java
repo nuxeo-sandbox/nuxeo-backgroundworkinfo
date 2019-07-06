@@ -1,10 +1,15 @@
 package nuxeo.backgroundworkinfo;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Inject;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,7 +30,7 @@ import nuxeo.backgroundworkinfo.operations.BackgroundWorkOverviewOp;
 @Features(AutomationFeature.class)
 @RepositoryConfig(init = DefaultRepositoryInit.class, cleanup = Granularity.METHOD)
 @Deploy({ "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core",
-        "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core:fakework-contrib.xml" })
+        "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core:DummyWork-contrib.xml" })
 public class TestOperations {
 
     @Inject
@@ -35,10 +40,12 @@ public class TestOperations {
     protected AutomationService automationService;
 
     @Test
-    public void shouldGetOverviewInfo() throws Exception {
+    public void TESTGetOverviewBasicInfo() throws Exception {
 
         OperationContext ctx = new OperationContext(session);
-        automationService.run(ctx, BackgroundWorkOverviewOp.ID);
+        Map<String, Object> params = new HashMap<>();
+        params.put("infoType", "Basic");
+        automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
         String jsonStr = (String) ctx.get(BackgroundWorkOverviewOp.CTX_VAR_NAME);
 
         assertNotNull(jsonStr);
@@ -46,14 +53,14 @@ public class TestOperations {
     }
 
     @Test
-    public void shouldGetOverviewInfoWithWorkers() throws Exception {
+    public void TESTGetOverviewBasicInfoWithWorkers() throws Exception {
 
         DummyWorker.startWorkers(DummyWorker.MAX_THREADS);
 
-        Thread.sleep(1000);
-
         OperationContext ctx = new OperationContext(session);
-        automationService.run(ctx, BackgroundWorkOverviewOp.ID);
+        Map<String, Object> params = new HashMap<>();
+        params.put("infoType", "Basic");
+        automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
         String jsonStr = (String) ctx.get(BackgroundWorkOverviewOp.CTX_VAR_NAME);
 
         assertNotNull(jsonStr);
@@ -65,12 +72,42 @@ public class TestOperations {
         DummyWorker.awaitWorkersCompletion();
 
         ctx = new OperationContext(session);
-        automationService.run(ctx, BackgroundWorkOverviewOp.ID);
+        automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
         jsonStr = (String) ctx.get(BackgroundWorkOverviewOp.CTX_VAR_NAME);
         assertNotNull(jsonStr);
         obj = new JSONObject(jsonStr);
         long running = obj.getInt("running");
         assertTrue(running <= (runningCount - DummyWorker.MAX_THREADS));
+
+    }
+
+    @Test
+    public void TESTGetOverviewInfoWithWorkers() throws Exception {
+
+        DummyWorker.startWorkers(DummyWorker.MAX_THREADS);
+
+        OperationContext ctx = new OperationContext(session);
+        Map<String, Object> params = new HashMap<>();
+        params.put("infoType", "Overview");
+        automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
+        String jsonStr = (String) ctx.get(BackgroundWorkOverviewOp.CTX_VAR_NAME);
+        
+        JSONArray array = new JSONArray(jsonStr);
+        JSONObject obj = TestUtils.getDummyWorkerOverview(array);
+        assertNotNull(obj);
+        assertEquals(DummyWorker.MAX_THREADS, obj.getLong("running"));
+
+        DummyWorker.stopWorkers();
+        DummyWorker.awaitWorkersCompletion();
+        
+        automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
+        jsonStr = (String) ctx.get(BackgroundWorkOverviewOp.CTX_VAR_NAME);
+        
+        array = new JSONArray(jsonStr);
+        obj = TestUtils.getDummyWorkerOverview(array);
+        assertNotNull(obj);
+        assertEquals(0, obj.getLong("running"));
+        assertTrue(obj.getLong("completed") >= DummyWorker.MAX_THREADS);
 
     }
 }

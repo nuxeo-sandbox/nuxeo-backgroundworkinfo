@@ -18,20 +18,27 @@
  */
 package nuxeo.backgroundworkinfo.operations;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.nuxeo.ecm.automation.OperationContext;
 import org.nuxeo.ecm.automation.core.Constants;
 import org.nuxeo.ecm.automation.core.annotations.Context;
 import org.nuxeo.ecm.automation.core.annotations.Operation;
 import org.nuxeo.ecm.automation.core.annotations.OperationMethod;
+import org.nuxeo.ecm.automation.core.annotations.Param;
 
-import nuxeo.backgroundworkinfo.BackgroundActivitiesOverview;
+import nuxeo.backgroundworkinfo.BgActivitiesOverview;
+import nuxeo.backgroundworkinfo.BgActivitiesOverviewBasic;
 import nuxeo.backgroundworkinfo.InfoFetcher;
 
 /**
- * Return a JSON object as string, quick info about bg activities (numbers, not details)
+ * Return a JSON object as string in the "BackgroundWorkOverview" context variable, quick info about bg activities
+ * (numbers, not details)
  */
-@Operation(id = BackgroundWorkOverviewOp.ID, category = Constants.CAT_DOCUMENT, label = "Background Work: Overview", description = "Sets the BackgroundWorkOverview context variable to a JSON object, quick infos about background activities (numbers, not details)")
+@Operation(id = BackgroundWorkOverviewOp.ID, category = Constants.CAT_DOCUMENT, label = "Background Work: Overview", description = "Sets the BackgroundWorkOverview "
+        + "context variable to a JSON object, quick infos about background activities."
+        + " Numbers only. If infoType is Overview, BackgroundWorkOverview is a JSON array "
+        + "(as string) of basic info with the name of the activity)")
 public class BackgroundWorkOverviewOp {
 
     public static final String ID = "BackgroundWork.Overview";
@@ -41,13 +48,29 @@ public class BackgroundWorkOverviewOp {
     @Context
     protected OperationContext ctx;
 
+    @Param(name = "infoType", description = "Type of info to return", values = { "Basic", "Overview" })
+    protected String infoType = "Basic";
+
     @OperationMethod
     public void run() throws JSONException {
 
-        InfoFetcher fetcher = InfoFetcher.getInstance();
-        BackgroundActivitiesOverview overview = fetcher.getOverview();
+        if (StringUtils.isBlank(infoType)) {
+            infoType = "Basic";
+        }
 
-        ctx.put(CTX_VAR_NAME, overview.toJson().toString());
+        InfoFetcher fetcher = InfoFetcher.getInstance();
+
+        switch (infoType) {
+        case "Overview":
+            BgActivitiesOverview overview = fetcher.fetchOverview();
+            ctx.put(CTX_VAR_NAME, overview.toJson().toString());
+            break;
+
+        default:
+            BgActivitiesOverviewBasic overviewBasic = fetcher.fetchOverviewBasic();
+            ctx.put(CTX_VAR_NAME, overviewBasic.toJson().toString());
+            break;
+        }
 
     }
 }

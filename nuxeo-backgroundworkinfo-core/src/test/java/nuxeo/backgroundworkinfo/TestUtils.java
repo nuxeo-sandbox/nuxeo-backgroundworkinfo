@@ -18,13 +18,25 @@
  */
 package nuxeo.backgroundworkinfo;
 
-import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
+ * 
  * @since 10.10
  */
-public interface BackgroundActivitiesInfo {
-
-    public BackgroundActivitiesOverview fetchOverview();
+public class TestUtils {
+    
+    public static JSONObject getDummyWorkerOverview(JSONArray arr) throws Exception {
+        
+        for(int i = 0; i < arr.length(); i++) {
+            JSONObject obj = arr.getJSONObject(i);
+            if(obj.getString("name").equals(DummyWorker.QUEUE_ID)) {
+                return obj;
+            }
+        }
+        
+        return null;
+    }
 
 }

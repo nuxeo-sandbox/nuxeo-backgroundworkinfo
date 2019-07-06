@@ -18,32 +18,32 @@
  */
 package nuxeo.backgroundworkinfo.workers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.nuxeo.ecm.core.work.api.WorkManager;
-import org.nuxeo.ecm.core.work.api.WorkQueueDescriptor;
 import org.nuxeo.ecm.core.work.api.WorkQueueMetrics;
 import org.nuxeo.runtime.api.Framework;
 
-import nuxeo.backgroundworkinfo.BackgroundActivitiesInfo;
-import nuxeo.backgroundworkinfo.BackgroundActivitiesOverview;
+import nuxeo.backgroundworkinfo.BgActivitiesOverview;
+import nuxeo.backgroundworkinfo.BgActivitiesOverviewBasic;
+import nuxeo.backgroundworkinfo.BgActivityOverview;
+import nuxeo.backgroundworkinfo.api.BgActivitiesInfo;
 
 /**
  * Calculate the state of all the workers (as available thru the work manager)
  * 
  * @since 10.10
  */
-public class WorkersInfo implements BackgroundActivitiesInfo {
+public class BgActivitiesInfoWorkers implements BgActivitiesInfo {
 
-    public WorkersInfo() {
+    public BgActivitiesInfoWorkers() {
 
     }
 
     @Override
-    public BackgroundActivitiesOverview fetchOverview() {
+    public BgActivitiesOverviewBasic fetchOverviewBasic() {
 
-        BackgroundActivitiesOverview overview = new BackgroundActivitiesOverview();
+        BgActivitiesOverviewBasic overview = new BgActivitiesOverviewBasic();
 
         WorkManager workManager = Framework.getService(WorkManager.class);
 
@@ -56,6 +56,30 @@ public class WorkersInfo implements BackgroundActivitiesInfo {
             overview.scheduled += metrics.getScheduled().longValue();
         }
 
+        return overview;
+    }
+
+    @Override
+    public BgActivitiesOverview fetchOverview() {
+        
+        BgActivitiesOverview overview = new BgActivitiesOverview();
+
+        WorkManager workManager = Framework.getService(WorkManager.class);
+
+        List<String> queueIds = workManager.getWorkQueueIds();
+        for (String queueId : queueIds) {
+            WorkQueueMetrics metrics = workManager.getMetrics(queueId);
+            
+            BgActivityOverview oneOverview = new BgActivityOverview();
+            oneOverview.name = queueId;
+            oneOverview.aborted = metrics.getCanceled().longValue();
+            oneOverview.completed = metrics.getCompleted().longValue();
+            oneOverview.running = metrics.getRunning().longValue();
+            oneOverview.scheduled = metrics.getScheduled().longValue();
+            
+            overview.add(oneOverview);
+        }
+        
         return overview;
     }
 

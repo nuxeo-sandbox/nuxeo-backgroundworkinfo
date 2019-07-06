@@ -33,13 +33,13 @@ public class DummyWorker extends AbstractWork {
 
     private static final long serialVersionUID = 5847044151039940207L;
 
-    // As defined in fakework-contrib.xml
-    public static final String CATEGORY = "Fake Workers";
+    // As defined in DummyWork-contrib.xml
+    public static final String CATEGORY = "Dummy Workers";
 
-    // As defined in fakework-contrib.xml
-    public static final String QUEUE_ID = "FakeWorker";
+    // As defined in DummyWork-contrib.xml
+    public static final String QUEUE_ID = "DummyWorker";
 
-    // As defined in fakework-contrib.xml
+    // As defined in DummyWork-contrib.xml
     public static final int MAX_THREADS = 3;
 
     protected static boolean doRun = true;
@@ -74,7 +74,7 @@ public class DummyWorker extends AbstractWork {
     }
 
     // ==================== Utilities to centralize start/stop of a FakeWorker
-    public static DummyWorker startWorker(String workId) {
+    public static DummyWorker startWorker(String workId, boolean andSleep) {
         
         doRun = true;
 
@@ -82,6 +82,14 @@ public class DummyWorker extends AbstractWork {
         WorkManager workManager = Framework.getService(WorkManager.class);
 
         workManager.schedule(fakeWorker);
+        
+        if(andSleep) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+        }
 
         return fakeWorker;
     }
@@ -89,7 +97,13 @@ public class DummyWorker extends AbstractWork {
     public static void startWorkers(int count) {
 
         for (int i = 1; i <= count; i++) {
-            startWorker("DummyWorker-" + i);
+            startWorker("DummyWorker-" + i, false);
+        }
+        
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            // Ignore
         }
     }
 
