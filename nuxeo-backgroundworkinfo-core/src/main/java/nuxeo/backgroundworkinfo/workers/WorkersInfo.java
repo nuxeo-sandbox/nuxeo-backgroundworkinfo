@@ -28,7 +28,6 @@ import org.nuxeo.runtime.api.Framework;
 
 import nuxeo.backgroundworkinfo.BackgroundActivitiesInfo;
 import nuxeo.backgroundworkinfo.BackgroundActivitiesOverview;
-import nuxeo.backgroundworkinfo.BackgroundActivityInfo;
 
 /**
  * Calculate the state of all the workers (as available thru the work manager)
@@ -58,26 +57,6 @@ public class WorkersInfo implements BackgroundActivitiesInfo {
         }
 
         return overview;
-    }
-
-    @Override
-    public ArrayList<BackgroundActivityInfo> fetchDetails() {
-
-        WorkManager workManager = Framework.getService(WorkManager.class);
-
-        List<String> queueIds = workManager.getWorkQueueIds();
-
-        // TODO
-        // . . . tobe continued. . .
-        ArrayList<BackgroundActivityInfo> infos = new ArrayList<BackgroundActivityInfo>();
-        for (String queueId : queueIds) {
-            WorkQueueMetrics metrics = workManager.getMetrics(queueId);
-            WorkQueueDescriptor desc = workManager.getWorkQueueDescriptor(queueId);
-
-        }
-
-        // return null;
-        throw new UnsupportedOperationException();
     }
 
 }

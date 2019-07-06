@@ -27,6 +27,4 @@ public interface BackgroundActivitiesInfo {
 
     public BackgroundActivitiesOverview fetchOverview();
 
-    public ArrayList<BackgroundActivityInfo> fetchDetails();
-
 }

@@ -47,8 +47,6 @@ public class InfoFetcher {
 
     protected BackgroundActivitiesOverview overview = new BackgroundActivitiesOverview();
 
-    protected ArrayList<BackgroundActivityInfo> lastInfos = null;
-
     private InfoFetcher() {
 
     }
@@ -92,31 +90,6 @@ public class InfoFetcher {
             fetchingOverview = false;
         }
         return overview;
-
-    }
-
-    public ArrayList<BackgroundActivityInfo> getDetails() {
-
-        synchronized (RUN_DETAILS_LOCK) {
-            if (!fetchingDetails) {
-                fetchingDetails = true;
-
-                // TODO: Get info...
-
-                // Workers
-                WorkersInfo workersInfo = new WorkersInfo();
-                ArrayList<BackgroundActivityInfo> workers = workersInfo.fetchDetails();
-
-                // BAF
-                // ...
-
-                // Others...
-
-                // Merge
-            }
-        }
-        fetchingDetails = false;
-        return lastInfos;
 
     }
 
