@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<component name="nuxeo.backgroundworkinfo.work.test" version="1.0">
+
+	<extension target="org.nuxeo.ecm.core.work.service"
+		point="queues">
+		<queue id="FakeWorker">
+			<maxThreads>3</maxThreads>
+			<category>Fake Workers</category>
+			<name>FakeWorker</name>
+		</queue>
+	</extension>
+
+</component>
