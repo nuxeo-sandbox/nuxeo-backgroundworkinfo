@@ -3,28 +3,36 @@
 
 **WARNING**: This is **W**ork **I**n **P**rogress
 
-Getting info about the background work: Mainly Workers. WIP is trying to get also info from Bulk Action Framework/Streams and asynchronous Event Handlers (aka Listeners). Most asynchronous listeners actually run in workers, but still, we want to get more info if possible.
+Getting info about the background work: Workers, Bulk Action Framework, Streams, Events, ... 
 
-Current implantation handles Workers and Bulk Actions.
+Current implantation handles only Workers and Bulk Actions.
 
 ## WARNINGS:
 ### Such Info is Highly Ephemeral
-One important concept to understand is that the info returned is valid only at the exact time it was fetched. This is the intrinsic way asynchronous/background jobs work: The info can return "10 workers" when it is called, and return 100 or 0 0.2 millisecond later.
+One important concept to understand is that the info returned is valid only at the exact time it was fetched. This is the intrinsic way asynchronous/background jobs work: The info can return "10 workers" when it is called, and returns 100 or 0 a millisecond later.
 
-### There can be duplicates
-A typical example would be an asynchronous worker, say "Worker1" that launches a Bulk Action ("Bulk1") and waits until the completion of the bulk computation. In this case, there will be, say, 2 running activities while it really is only one, somehow (even if it uses several threads)
+### There can be duplicates in the list
+A typical example would be an asynchronous worker, say "Worker1", that launches a Bulk Action ("Bulk1") that runs in a single thread. The worker then waits until completion of the BAF. In this case, there will be two running activities ("Worker1" and "Bulk1") while there really is only one, somehow (even if it uses several threads)
 
 ## Usage
-The plugin exposes a class, `InfoFetcher` that, well, fetches the info.
+The plugin:
+
+* Implements the `InfoFetcher` that fetches the info
+* Contributes the `BackgroundWork.Overview` operation
+* Contributes a WebUI Admin slot tab in "Analytics"
+  * *Pull requests welcome to make it look a bit better :-)*
 
 #### As of today-now the plugin fetches only:
 * Workers
-* Bulk Action Framework running and scheduled actions
+* Bulk Action Framework, only *running* and *scheduled* actions
   * We don't list aborted/completed actions
 
-It also contributes a new operation: `BackgroundWork.Overview`
 
 ### Operation: BackgroundWork.Overview
+
+<div style="margin-left:50px; padding:5px; background-color:#eeeeee">
+<span style="font-weight:bold">IMPORTANT</span>: This operation is filtered and can be called only by users belonging to the "administrators" group, and only over HTTPS. See below "Operations REST filtering" for more details.
+</div>
 
 * Input/output: `void`
 * Parameter(s)
@@ -107,11 +115,27 @@ Here is an example of simple output:
 ]
 ```
 
+## Operations REST filtering
+The opérations that are filtered for REST calls and restricted to administrators are listed in the `backgroundworkinfo-operations-contrib.xml` file. We are using the recommended mechanism for the filtering, as described [here](https://doc.nuxeo.com/nxdoc/filtering-exposed-operations/). `backgroundworkinfo-operations-contrib.xml` contains, for example:
 
+```
+  <extension target="org.nuxeo.ecm.automation.server.AutomationServer" point="bindings">
+    <binding name="BackgroundWork.Overview">
+      <groups>administrators</groups>
+      <!-- Must be https -->
+      <secure>true</secure>
+    </binding>
+  </extension>
+```
+
+This contribution makes sure these operations, when called via REST, can only be called by a administrator and only over HTTPS. If you need to make them available via REST for other users/groups, you can:
+
+* Override them in a Studio XML extension
+* Use them in an Automation Chain that you call from REST
 
 
 ## WARNINGS
-* **W**ork **I**n **P**rogress, as stated above (but we say it again here). So far only Workers aad Bulk Actions re handled.
+* **W**ork **I**n **P**rogress, as stated above (but we say it again here). So far only Workers aad Bulk Actions are handled.
 * This work is **not supported** until it is written it is supported
 
 

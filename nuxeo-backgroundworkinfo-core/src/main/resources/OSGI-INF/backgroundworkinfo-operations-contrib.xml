@@ -5,4 +5,15 @@
     <operation class="nuxeo.backgroundworkinfo.operations.BackgroundWorkOverviewOp"/>
   </extension>
 
+  <!-- By default, limit operation(s) to administrators -->
+  <!-- See https://doc.nuxeo.com/nxdoc/filtering-exposed-operations -->
+  <!-- This can be overridden in a simple Studio XML Extension -->
+  <extension target="org.nuxeo.ecm.automation.server.AutomationServer" point="bindings">
+    <binding name="BackgroundWork.Overview">
+      <groups>administrators</groups>
+      <!-- Must be https -->
+      <secure>true</secure>
+    </binding>
+  </extension>
+
 </component>
