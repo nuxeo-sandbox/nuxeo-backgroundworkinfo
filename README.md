@@ -49,7 +49,8 @@ These are global values, no details, they are the total number of background act
 
 ```
 {
-  name: string
+  type: string,
+  name: string,
   scheduled: number,
   running: number,
   completed: number,
@@ -57,7 +58,9 @@ These are global values, no details, they are the total number of background act
 }
 ```
 
-Again, **WARNING**: As this is Work In Progress, we have only Workers info, not BAF/Streams/etc.
+Again, **WARNING**: As this is Work In Progress, we have only Workers and Bulk Action info, not Streams/etc.
+
+The type will be "Worker" or "BAF".
 
 The `name` is the info declared in the configuration. For example, for workers, it is the ID of the Queue they belong to.
 
@@ -108,7 +111,7 @@ Here is an example of simple output:
 
 
 ## WARNINGS
-* **W**ork **I**n **P**rogress, as stated above (but we say it again here). SO far only Workers are handled.
+* **W**ork **I**n **P**rogress, as stated above (but we say it again here). So far only Workers aad Bulk Actions re handled.
 * This work is **not supported** until it is written it is supported
 
 
