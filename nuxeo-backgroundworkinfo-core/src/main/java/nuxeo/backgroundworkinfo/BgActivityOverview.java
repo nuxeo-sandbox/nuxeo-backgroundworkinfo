@@ -18,6 +18,7 @@
  */
 package nuxeo.backgroundworkinfo;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,7 +28,9 @@ import org.json.JSONObject;
  * @since 10.10
  */
 public class BgActivityOverview {
-    
+
+    public String type = "";
+
     public String name = "";
 
     public long scheduled = 0;
@@ -42,7 +45,13 @@ public class BgActivityOverview {
 
     }
 
+    /**
+     * Reset all values to "" or 0.
+     * 
+     * @since 10.10
+     */
     public void reset() {
+        type = "";
         name = "";
         scheduled = 0;
         running = 0;
@@ -50,8 +59,15 @@ public class BgActivityOverview {
         aborted = 0;
     }
 
+    /**
+     * Add the values of other. type and name must match exactly, or IllegalArgumentException is throwned.
+     * 
+     * @param other
+     * @since 10.10
+     */
     public void add(BgActivityOverview other) {
-        if(!name.equals(other.name)) {
+        String typeAndName = type + name;
+        if (!typeAndName.equals(other.type + other.name)) {
             throw new IllegalArgumentException();
         }
         scheduled += other.scheduled;
@@ -60,10 +76,18 @@ public class BgActivityOverview {
         aborted += other.aborted;
     }
 
+    /**
+     * Return the JSON representation of the activity
+     * 
+     * @return the JSON representation of the activity
+     * @throws JSONException
+     * @since 10.10
+     */
     public JSONObject toJson() throws JSONException {
 
         JSONObject obj = new JSONObject();
 
+        obj.put("type", type);
         obj.put("name", name);
         obj.put("scheduled", scheduled);
         obj.put("running", running);

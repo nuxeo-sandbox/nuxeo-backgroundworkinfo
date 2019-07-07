@@ -40,6 +40,8 @@ import nuxeo.backgroundworkinfo.api.BgActivitiesInfo;
  * @since 10.10
  */
 public class BgActivitiesInfoBulk implements BgActivitiesInfo {
+    
+    public final String TYPE = "BAF";
 
     public BgActivitiesInfoBulk() {
 
@@ -91,6 +93,7 @@ public class BgActivitiesInfoBulk implements BgActivitiesInfo {
             BgActivityOverview overviewAction = overviewMap.get(actionName);
             if (overviewAction == null) {
                 overviewAction = new BgActivityOverview();
+                overviewAction.type = TYPE;
                 overviewAction.name = actionName;
             }
 

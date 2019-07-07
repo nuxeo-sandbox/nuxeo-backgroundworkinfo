@@ -35,6 +35,8 @@ import nuxeo.backgroundworkinfo.api.BgActivitiesInfo;
  * @since 10.10
  */
 public class BgActivitiesInfoWorkers implements BgActivitiesInfo {
+    
+    public final String TYPE = "Worker";
 
     public BgActivitiesInfoWorkers() {
 
@@ -71,6 +73,7 @@ public class BgActivitiesInfoWorkers implements BgActivitiesInfo {
             WorkQueueMetrics metrics = workManager.getMetrics(queueId);
             
             BgActivityOverview oneOverview = new BgActivityOverview();
+            oneOverview.type = TYPE;
             oneOverview.name = queueId;
             oneOverview.aborted = metrics.getCanceled().longValue();
             oneOverview.completed = metrics.getCompleted().longValue();

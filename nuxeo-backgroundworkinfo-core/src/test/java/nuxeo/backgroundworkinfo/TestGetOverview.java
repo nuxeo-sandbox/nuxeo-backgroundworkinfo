@@ -213,7 +213,7 @@ public class TestGetOverview {
         obj = TestUtils.getDummyBAFOverview(array);
         assertNotNull(obj);
         assertTrue(obj.getLong("running") == 3);
-        
+                
         // Stop the computation
         DummyBulkAction.stopBulkAction();
         // Wait all is stopped
