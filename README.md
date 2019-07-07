@@ -31,7 +31,7 @@ The plugin:
 ### Operation: BackgroundWork.Overview
 
 <div style="margin-left:50px; padding:5px; background-color:#eeeeee">
-<span style="font-weight:bold">IMPORTANT</span>: This operation is filtered and can be called only by users belonging to the "administrators" group, and only over HTTPS. See below "Operations REST filtering" for more details.
+<span style="font-weight:bold">IMPORTANT</span>: This operation is filtered and can be called only by users belonging to the "administrators" group. See below "Operations REST filtering" for more details.
 </div>
 
 * Input/output: `void`
@@ -128,7 +128,7 @@ The opérations that are filtered for REST calls and restricted to administrator
   </extension>
 ```
 
-This contribution makes sure these operations, when called via REST, can only be called by a administrator and only over HTTPS. If you need to make them available via REST for other users/groups, you can:
+This contribution makes sure these operations, when called via REST, can only be called by a user belonging to the administrators group. If you need to make them available via REST for other users/groups, you can:
 
 * Override them in a Studio XML extension
 * Use them in an Automation Chain that you call from REST

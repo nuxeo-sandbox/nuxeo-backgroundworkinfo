@@ -11,8 +11,6 @@
   <extension target="org.nuxeo.ecm.automation.server.AutomationServer" point="bindings">
     <binding name="BackgroundWork.Overview">
       <groups>administrators</groups>
-      <!-- Must be https -->
-      <secure>true</secure>
     </binding>
   </extension>
 
