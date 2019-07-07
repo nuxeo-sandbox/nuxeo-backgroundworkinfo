@@ -18,6 +18,7 @@
  */
 package nuxeo.backgroundworkinfo;
 
+import nuxeo.backgroundworkinfo.bulk.BgActivitiesInfoBulk;
 import nuxeo.backgroundworkinfo.workers.BgActivitiesInfoWorkers;
 
 /**
@@ -82,13 +83,15 @@ public class InfoFetcher {
                     BgActivitiesOverviewBasic overviewWorkers = workersInfo.fetchOverviewBasic();
 
                     // BAF
-                    // ...
+                    BgActivitiesInfoBulk bafInfo = new BgActivitiesInfoBulk();
+                    BgActivitiesOverviewBasic overviewBAF = bafInfo.fetchOverviewBasic();
 
                     // Others...
 
                     // Merge
                     overviewBasic.reset();
                     overviewBasic.add(overviewWorkers);
+                    overviewBasic.add(overviewBAF);
                     // . . .
 
                 }
@@ -118,13 +121,15 @@ public class InfoFetcher {
                     BgActivitiesOverview overviewWorkers = workersInfo.fetchOverview();
 
                     // BAF
-                    // ...
+                    BgActivitiesInfoBulk bafInfo = new BgActivitiesInfoBulk();
+                    BgActivitiesOverview overviewBAF = bafInfo.fetchOverview();
 
                     // Others...
 
                     // Merge
                     overview = new BgActivitiesOverview();
                     overview.addAll(overviewWorkers);
+                    overview.addAll(overviewBAF);
                     // . . .
 
                 }

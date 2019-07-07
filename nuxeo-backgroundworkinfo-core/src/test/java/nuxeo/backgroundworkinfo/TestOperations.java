@@ -25,6 +25,7 @@ import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
 
 import nuxeo.backgroundworkinfo.operations.BackgroundWorkOverviewOp;
+import nuxeo.backgroundworkinfo.testutils.TestUtils;
 
 @RunWith(FeaturesRunner.class)
 @Features(AutomationFeature.class)

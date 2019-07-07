@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<component name="nuxeo.backgroundworkinfo.bulk.test"
+	version="1.0">
+
+	<extension target="org.nuxeo.ecm.core.bulk" point="actions">
+		<action name="DummyBulkAction" bucketSize="100" batchSize="20" />
+	</extension>
+
+	<extension target="org.nuxeo.runtime.stream.service"
+		point="streamProcessor">
+		<streamProcessor name="DummyBulkAction"
+			class="nuxeo.backgroundworkinfo.testutils.DummyBulkAction"
+			logConfig="bulk" defaultConcurrency="2" defaultPartitions="4">
+		</streamProcessor>
+	</extension>
+
+</component>

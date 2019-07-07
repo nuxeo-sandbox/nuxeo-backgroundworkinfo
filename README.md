@@ -5,13 +5,22 @@
 
 Getting info about the background work: Mainly Workers. WIP is trying to get also info from Bulk Action Framework/Streams and asynchronous Event Handlers (aka Listeners). Most asynchronous listeners actually run in workers, but still, we want to get more info if possible.
 
-## WARNING: Such Info is Highly Ephemeral
+Current implantation handles Workers and Bulk Actions.
+
+## WARNINGS:
+### Such Info is Highly Ephemeral
 One important concept to understand is that the info returned is valid only at the exact time it was fetched. This is the intrinsic way asynchronous/background jobs work: The info can return "10 workers" when it is called, and return 100 or 0 0.2 millisecond later.
+
+### There can be duplicates
+A typical example would be an asynchronous worker, say "Worker1" that launches a Bulk Action ("Bulk1") and waits until the completion of the bulk computation. In this case, there will be, say, 2 running activities while it really is only one, somehow (even if it uses several threads)
 
 ## Usage
 The plugin exposes a class, `InfoFetcher` that, well, fetches the info.
 
-#### As of today-now: Only workers.
+#### As of today-now the plugin fetches only:
+* Workers
+* Bulk Action Framework running and scheduled actions
+  * We don't list aborted/completed actions
 
 It also contributes a new operation: `BackgroundWork.Overview`
 
@@ -83,7 +92,14 @@ Here is an example of simple output:
     "scheduled": 0,
     "aborted": 0,
     "completed": 27
-  };
+  },
+  {
+    "name": "myCustomBAFAction",
+    "running": 2,
+    "scheduled": 1,
+    "aborted": 0,
+    "completed": 0
+  }
   . . .
 ]
 ```
