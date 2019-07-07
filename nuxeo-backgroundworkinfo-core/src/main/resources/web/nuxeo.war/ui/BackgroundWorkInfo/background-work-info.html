@@ -1,0 +1,128 @@
+<dom-module id="background-work-info">
+  <template>
+    <style include="iron-flex iron-flex-alignment nuxeo-styles">
+      :host {
+        display: block;
+      }
+
+      paper-card {
+        padding: 0;
+        border-radius: 2px;
+      }
+
+      .status-list {
+        /*height: calc(100vh - 101px);*/
+      }
+
+      label {
+        /*opacity: .5;*/
+        /*min-width: 10em;*/
+        display: inline-block;
+      }
+
+      .item {
+        line-height: 2.5em;
+      }
+
+      .verticalSeparator {
+        margin-top: 1em;
+      }
+
+      .title {
+        font-weight: bold;
+      }
+
+      .lines {
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+      }
+
+      .moreMarginLeft {
+        margin-left: 0.5em;
+      }
+    </style>
+
+    <nuxeo-operation id="bgWorkOverviewOp" op="BackgroundWork.Overview"></nuxeo-operation>
+
+    <paper-card class="layout flex status-list">
+      <div class="card-content">
+        
+        <paper-button id="run" on-tap="_refresh">Run</paper-button>
+
+        <div class="verticalSeparator">
+          <span>Colors for Name/Title column: </span>
+          <span class="moreMarginLeft" style="color:blue">Running</span>,
+          <span class="moreMarginLeft" style="color:darkgreen">Scheduled</span>,
+          <span class="moreMarginLeft" >Completed/Aborted</span>
+        </div>
+
+        <div class="layout horizontal center item verticalSeparator title lines">
+          <span class="flex">Type</span>
+          <span class="flex">Name/Title</span>
+          <span class="flex">Scheduled</span>
+          <span class="flex">Running</span>
+          <span class="flex">Completed</span>
+          <span class="flex">Aborted</span>
+        </div>
+        <template is="dom-repeat" items="[[bgWorkInfo]]" as="item">
+          <div class="layout horizontal center item lines">
+            <span class="flex">[[item.type]]</span>
+            <span class="flex" style="[[_getColor(item)]]">[[item.name]]</span>
+            <span class="flex">[[item.scheduled]]</span>
+            <span class="flex">[[item.running]]</span>
+            <span class="flex">[[item.completed]]</span>
+            <span class="flex">[[item.aborted]]</span>
+          </div>
+        </template>
+
+      </div>
+    </paper-card>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'background-work-info',
+
+      behaviors: [Nuxeo.LayoutBehavior],
+
+      properties: {
+        bgWorkInfo: Object
+      },
+
+      ready: function () {
+        //this._refresh();
+      },
+
+      _getColor: function(item) {
+        if(item.running) {
+          return "color:blue"
+        }
+
+        if(item.scheduled) {
+          return "color:darkgreen"
+        }
+
+        return "";
+      },
+
+      _refresh: function () {
+        let op = this.$.bgWorkOverviewOp;
+
+        op.params = {
+          "infoType": "Overview"
+        };
+
+        op.execute()
+          .then(function(result) {
+            // assertTrue(result["entity-type"] === "string");
+            this.bgWorkInfo = JSON.parse(result.value);
+          }.bind(this))
+          .catch(function(error) {
+            alert(error);
+          }.bind(this));
+      }
+
+    });
+  </script>
+</dom-module>
