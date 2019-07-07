@@ -46,8 +46,7 @@ public class TestOperations {
         OperationContext ctx = new OperationContext(session);
         Map<String, Object> params = new HashMap<>();
         params.put("infoType", "Basic");
-        automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
-        String jsonStr = (String) ctx.get(BackgroundWorkOverviewOp.CTX_VAR_NAME);
+        String jsonStr = (String) automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
 
         assertNotNull(jsonStr);
 
@@ -61,8 +60,7 @@ public class TestOperations {
         OperationContext ctx = new OperationContext(session);
         Map<String, Object> params = new HashMap<>();
         params.put("infoType", "Basic");
-        automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
-        String jsonStr = (String) ctx.get(BackgroundWorkOverviewOp.CTX_VAR_NAME);
+        String jsonStr = (String) automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
 
         assertNotNull(jsonStr);
         JSONObject obj = new JSONObject(jsonStr);
@@ -73,8 +71,7 @@ public class TestOperations {
         DummyWorker.awaitWorkersCompletion();
 
         ctx = new OperationContext(session);
-        automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
-        jsonStr = (String) ctx.get(BackgroundWorkOverviewOp.CTX_VAR_NAME);
+        jsonStr = (String) automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
         assertNotNull(jsonStr);
         obj = new JSONObject(jsonStr);
         long running = obj.getInt("running");
@@ -90,8 +87,7 @@ public class TestOperations {
         OperationContext ctx = new OperationContext(session);
         Map<String, Object> params = new HashMap<>();
         params.put("infoType", "Overview");
-        automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
-        String jsonStr = (String) ctx.get(BackgroundWorkOverviewOp.CTX_VAR_NAME);
+        String jsonStr = (String) automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
         
         JSONArray array = new JSONArray(jsonStr);
         JSONObject obj = TestUtils.getDummyWorkerOverview(array);
@@ -101,8 +97,7 @@ public class TestOperations {
         DummyWorker.stopWorkers();
         DummyWorker.awaitWorkersCompletion();
         
-        automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
-        jsonStr = (String) ctx.get(BackgroundWorkOverviewOp.CTX_VAR_NAME);
+        jsonStr = (String) automationService.run(ctx, BackgroundWorkOverviewOp.ID, params);
         
         array = new JSONArray(jsonStr);
         obj = TestUtils.getDummyWorkerOverview(array);

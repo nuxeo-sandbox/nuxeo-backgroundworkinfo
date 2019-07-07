@@ -27,7 +27,7 @@ import org.json.JSONObject;
  * 
  * @since 10.10
  */
-public class BgActivityOverview {
+public class BgActivityOverview implements Comparable<BgActivityOverview>{
 
     public String type = "";
 
@@ -96,6 +96,12 @@ public class BgActivityOverview {
 
         return obj;
 
+    }
+
+    @Override
+    public int compareTo(BgActivityOverview o) {
+         String typeAndName = type + "-" + name;
+         return typeAndName.compareTo(o.type + "-" + o.name);
     }
 
 }

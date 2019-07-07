@@ -35,6 +35,10 @@ public class BgActivitiesOverview extends ArrayList<BgActivityOverview> {
         
     }
     
+    public void sortByTypeAndName() {
+        this.sort(null);
+    }
+    
     public JSONArray toJson() throws JSONException {
         
         JSONArray array = new JSONArray();

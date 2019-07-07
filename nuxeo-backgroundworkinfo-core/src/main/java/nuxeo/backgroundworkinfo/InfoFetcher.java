@@ -131,6 +131,8 @@ public class InfoFetcher {
                     overview.addAll(overviewWorkers);
                     overview.addAll(overviewBAF);
                     // . . .
+                    // Sort
+                    overview.sortByTypeAndName();
 
                 }
             }

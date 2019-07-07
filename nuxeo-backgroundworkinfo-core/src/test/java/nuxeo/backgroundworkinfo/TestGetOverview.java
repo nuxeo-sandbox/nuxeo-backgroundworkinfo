@@ -209,7 +209,7 @@ public class TestGetOverview {
         BgActivitiesOverview overviewAfter = fetcher.fetchOverview();
         assertNotNull(overviewAfter);
         array = overviewAfter.toJson();
-                
+                        
         obj = TestUtils.getDummyBAFOverview(array);
         assertNotNull(obj);
         assertTrue(obj.getLong("running") == 3);
