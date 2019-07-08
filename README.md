@@ -3,9 +3,11 @@
 
 **WARNING**: This is **W**ork **I**n **P**rogress
 
-Getting info about the background work: Workers, Bulk Action Framework, Streams, Events, ... 
+Getting info about the background work: Workers, Bulk Action Framework, Streams, Events, ...
 
-Current implantation handles only Workers and Bulk Actions.
+Current implantation handles only Workers and Bulk Actions (That said, most asynchronous listeners use the WorkManager to handle their tasks, so they are handled)
+
+**IMPORTANT**: The information returned is global, *compatible with a cluster deployment* of nuxeo, listing all the activities running/scheduled/etc. an all the nodes.
 
 ## WARNINGS:
 ### Such Info is Highly Ephemeral
@@ -17,15 +19,14 @@ A typical example would be an asynchronous worker, say "Worker1", that launches 
 ## Usage
 The plugin:
 
-* Implements the `InfoFetcher` that fetches the info
-* Contributes the `BackgroundWork.Overview` operation
+* Implements the `InfoFetcher` class that, well, fetches the info
+* Contributes the `BackgroundWork.Overview` operation for easy usage from UI
 * Contributes a WebUI Admin slot tab in "Analytics"
   * *Pull requests welcome to make it look a bit better :-)*
 
 #### As of today-now the plugin fetches only:
 * Workers
-* Bulk Action Framework, only *running* and *scheduled* actions
-  * We don't list aborted/completed actions
+* Bulk Action Framework
 
 
 ### Operation: BackgroundWork.Overview
@@ -37,10 +38,10 @@ The plugin:
 * Input/output: `void`
 * Parameter(s)
   * `infoType`, string. Possible values: `"Basic"` and `"Overview"`. Default is `"Basic"`
-* The operation fills the `BackgroundWorkOverview` context variable with a JSON string whose value depends on `infoType`. From JS Automation, you can then call `JSON.Parse(ctx. BackgroundWorkOverview)` and handle the result as you wish.
+* The operation returns a JSON string whose value depends on `infoType`. From JS Automation, you can then call `JSON.Parse` on the result and handle it as you wish.
 
 ##### => If `infoType` is `"Basic"`...
-...then `BackgroundWorkOverview` is a JSON object (as string):
+...then the operation returns JSON object (as string):
 
 ```
 {
@@ -50,10 +51,10 @@ The plugin:
   aborted: number
 }
 ```
-These are global values, no details, they are the total number of background activities. (**WARNING**: As this is Work In Progress, we have only Workers info, not BAF/Streams/etc.)
+These are global values, no details, they are the total number of background activities.
 
 ##### => Else, if `infoType` is `"Overview"`...
-...then `BackgroundWorkOverview` is a is a JSON Array (as string). Each object in the array is:
+...then the operation returns a JSON Array (as string). Each object in the array is:
 
 ```
 {
@@ -65,8 +66,6 @@ These are global values, no details, they are the total number of background act
   aborted: number
 }
 ```
-
-Again, **WARNING**: As this is Work In Progress, we have only Workers and Bulk Action info, not Streams/etc.
 
 The type will be "Worker" or "BAF".
 
@@ -109,7 +108,7 @@ Here is an example of simple output:
     "running": 2,
     "scheduled": 1,
     "aborted": 0,
-    "completed": 0
+    "completed": 14
   }
   . . .
 ]
@@ -122,8 +121,6 @@ The opérations that are filtered for REST calls and restricted to administrator
   <extension target="org.nuxeo.ecm.automation.server.AutomationServer" point="bindings">
     <binding name="BackgroundWork.Overview">
       <groups>administrators</groups>
-      <!-- Must be https -->
-      <secure>true</secure>
     </binding>
   </extension>
 ```
@@ -135,8 +132,8 @@ This contribution makes sure these operations, when called via REST, can only be
 
 
 ## WARNINGS
-* **W**ork **I**n **P**rogress, as stated above (but we say it again here). So far only Workers aad Bulk Actions are handled.
-* This work is **not supported** until it is written it is supported
+* **W**ork **I**n **P**rogress, as stated above (but we say it again here). So far only Workers and Bulk Actions are handled.
+* This work is **not supported** until it is explicitly written it is supported
 
 
 ## Build
@@ -147,7 +144,7 @@ This contribution makes sure these operations, when called via REST, can only be
 
 
 ## Known limitations
-This plugin is a work in progress and handles only Workers, not the Bulk Action Framework, the streams, ...
+See _WARNINGS_, above.
 
 
 

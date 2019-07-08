@@ -26,6 +26,7 @@ import org.nuxeo.ecm.core.bulk.BulkCodecs;
 import org.nuxeo.ecm.core.bulk.BulkService;
 import org.nuxeo.ecm.core.bulk.BulkServiceImpl;
 import org.nuxeo.ecm.core.bulk.message.BulkStatus;
+import org.nuxeo.ecm.core.bulk.message.BulkStatus.State;
 import org.nuxeo.runtime.api.Framework;
 import org.nuxeo.runtime.kv.KeyValueStoreProvider;
 
@@ -40,7 +41,7 @@ import nuxeo.backgroundworkinfo.api.BgActivitiesInfo;
  * @since 10.10
  */
 public class BgActivitiesInfoBulk implements BgActivitiesInfo {
-    
+
     public final String TYPE = "BAF";
 
     public BgActivitiesInfoBulk() {
@@ -63,6 +64,11 @@ public class BgActivitiesInfoBulk implements BgActivitiesInfo {
         return overviewBasic;
     }
 
+    /**
+     * This class uses the KeyValueStore implementation:
+     * - It scales
+     * - It returns info about the cluster (if deployed in a cluster), so all the running BAF on all the nodes
+     */
     @Override
     public BgActivitiesOverview fetchOverview() {
 
@@ -74,19 +80,14 @@ public class BgActivitiesInfoBulk implements BgActivitiesInfo {
                                       .map(BulkCodecs.getStatusCodec()::decode)
                                       .filter(status -> status.getState() == BulkStatus.State.RUNNING
                                               || status.getState() == BulkStatus.State.SCROLLING_RUNNING
-                                              || status.getState() == BulkStatus.State.SCHEDULED)
+                                              || status.getState() == BulkStatus.State.SCHEDULED
+                                              || status.getState() == BulkStatus.State.COMPLETED
+                                              || status.getState() == BulkStatus.State.ABORTED)
                                       .collect(Collectors.toList());
 
         // Group by action id
         HashMap<String, BgActivityOverview> overviewMap = new HashMap<String, BgActivityOverview>();
         for (BulkStatus oneStatus : statuses) {
-
-            // So far, we handle only running/scheduled
-            if (oneStatus.getState() != BulkStatus.State.RUNNING
-                    && oneStatus.getState() != BulkStatus.State.SCROLLING_RUNNING
-                    && oneStatus.getState() != BulkStatus.State.SCHEDULED) {
-                continue;
-            }
 
             String actionName = oneStatus.getAction();
 
@@ -105,6 +106,14 @@ public class BgActivitiesInfoBulk implements BgActivitiesInfo {
 
             case SCHEDULED:
                 overviewAction.scheduled += 1;
+                break;
+
+            case COMPLETED:
+                overviewAction.completed += 1;
+                break;
+
+            case ABORTED:
+                overviewAction.aborted += 1;
                 break;
 
             default:
