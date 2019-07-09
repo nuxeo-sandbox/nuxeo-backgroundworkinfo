@@ -10,7 +10,11 @@ Getting info about the background work: Workers, Bulk Action Framework, Streams,
 
 Current implantation handles only Workers and Bulk Actions (That said, this covers almost everything: most asynchronous listeners use the WorkManager to handle their tasks, so they are handled)
 
-**IMPORTANT**: The information returned is global, *compatible with a cluster deployment* of nuxeo, listing all the activities running/scheduled/etc. an all the nodes.
+## About Cluster of Nuxeo
+
+* Information returned about Bulk Action Framework is global, compatible with a cluster deployment of nuxeo, listing all the actions running/scheduled/etc. on all the nodes.
+
+* For workers, it depends on the way the persistence of works is configured. With Kafka, for example, the information returned is global.
 
 ## WARNINGS:
 ### Such Info is Highly Ephemeral
