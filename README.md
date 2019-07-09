@@ -24,8 +24,10 @@ A typical example would be an asynchronous worker, say "Worker1", that launches 
 The plugin is available on the public [Nuxeo marketplace](https://doc.nuxeo.com/studio/nuxeo-marketplace/). So, for example, it can be installed with `nuxeoctl`:
 
 ```
-./nuxeoctl mp-install nuxeo-backgroundwork-info
+./nuxeoctl mp-install nuxeo-backgroundwork-info -s
 ```
+
+(`-s` means "allow for installing SNAPSHOT. The plugin version is a snapshot.)
 
 
 ## Usage
