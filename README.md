@@ -1,6 +1,9 @@
 # Nuxeo Background Work Info
 <hr>
 
+QA status<br/>
+[![Build Status](https://qa.nuxeo.org/jenkins/buildStatus/icon?job=Sandbox/sandbox_nuxeo-nuxeo-backgroundworkinfo-master)](https://qa.nuxeo.org/jenkins/view/Sandbox/job/Sandbox/job/sandbox_nuxeo-backgroundworkinfo-master/)
+
 **WARNING**: This is **W**ork **I**n **P**rogress
 
 Getting info about the background work: Workers, Bulk Action Framework, Streams, Events, ...
