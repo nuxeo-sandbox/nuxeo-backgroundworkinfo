@@ -19,6 +19,15 @@ One important concept to understand is that the info returned is valid only at t
 ### There can be duplicates in the list
 A typical example would be an asynchronous worker, say "Worker1", that launches a Bulk Action ("Bulk1") that runs in a single thread. The worker then waits until completion of the BAF. In this case, there will be two running activities ("Worker1" and "Bulk1") while there really is only one, somehow (even if it uses several threads)
 
+
+## Install
+The plugin is available on the public [Nuxeo marketplace](https://doc.nuxeo.com/studio/nuxeo-marketplace/). So, for example, it can be installed with `nuxeoctl`:
+
+```
+./nuxeoctl mp-install nuxeo-backgroundwork-info
+```
+
+
 ## Usage
 The plugin:
 
