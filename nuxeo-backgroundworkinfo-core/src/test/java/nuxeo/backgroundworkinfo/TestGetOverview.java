@@ -27,20 +27,30 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.nuxeo.ecm.core.api.CoreSession;
+import org.nuxeo.ecm.core.api.DocumentModel;
+import org.nuxeo.ecm.core.event.EventService;
 import org.nuxeo.ecm.core.test.DefaultRepositoryInit;
 import org.nuxeo.ecm.core.test.annotations.Granularity;
 import org.nuxeo.ecm.core.test.annotations.RepositoryConfig;
 import org.nuxeo.ecm.platform.test.PlatformFeature;
+import org.nuxeo.runtime.metrics.MetricsService;
 import org.nuxeo.runtime.test.runner.Deploy;
 import org.nuxeo.runtime.test.runner.Features;
 import org.nuxeo.runtime.test.runner.FeaturesRunner;
+import org.nuxeo.runtime.transaction.TransactionHelper;
 
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.SharedMetricRegistries;
 import com.google.inject.Inject;
 
 import nuxeo.backgroundworkinfo.testutils.DummyBulkAction;
@@ -49,19 +59,48 @@ import nuxeo.backgroundworkinfo.testutils.TestUtils;
 @RunWith(FeaturesRunner.class)
 @Features(PlatformFeature.class)
 @RepositoryConfig(init = DefaultRepositoryInit.class, cleanup = Granularity.METHOD)
-@Deploy({ "org.nuxeo.ecm.core.bulk",
-          "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core",
-          "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core:DummyWork-contrib.xml",
-          "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core:DummyBukAction-contrib.xml"})
+@Deploy({ "org.nuxeo.ecm.core.bulk", "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core",
+        "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core:DummyWork-contrib.xml",
+        "nuxeo.backgroundworkinfo.nuxeo-backgroundworkinfo-core:DummyBukAction-contrib.xml" })
 public class TestGetOverview {
 
     @Inject
     CoreSession session;
+    
+    @Inject
+    EventService eventService;
 
     @Test
     public void testDummy() throws Exception {
 
         // For quick testing - to be removed later
+
+        for (int i = 1; i < 11; i++) {
+            DocumentModel doc = session.createDocumentModel("/", "toto" + i, "File");
+            doc = session.createDocument(doc);
+        }
+        
+        session.save();
+        TransactionHelper.commitOrRollbackTransaction();
+        TransactionHelper.startTransaction();
+        
+        eventService.waitForAsyncCompletion();
+
+        MetricRegistry registry = SharedMetricRegistries.getOrCreate(MetricsService.class.getName());
+
+        String metricPrefix = "nuxeo.repositories.default.documents.create";
+        Map<String, Gauge> metrics;
+        metrics = registry.getGauges()
+                          .entrySet()
+                          .stream()
+                          .filter(e -> e.getKey().startsWith(metricPrefix))
+                          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        String s = "";
+        if (s != null) {
+
+        }
+
     }
 
     @Test
@@ -135,17 +174,17 @@ public class TestGetOverview {
         assertTrue(obj.getLong("completed") >= DummyWorker.MAX_THREADS);
 
     }
-    
+
     // We can't test both tesWithBAF and tesWithSeveralBAF. After running tesWithBAF,
     // tesWithSeveralBAF fails, fetchOverview does not get BAF statuses and I have no
     // idea why. I suspect it's a lack or re-initialization between 2 tests maybe?
     @Ignore
     @Test
     public void tesWithBAF() throws Exception {
-        
+
         // Create a couple of documents for the BAF even if they are not used
         TestUtils.createDocsAndSaveSession(3, session, "/", "File");
-        
+
         InfoFetcher fetcher = InfoFetcher.getInstance();
 
         // Get overview. Should not have our BAF overview
@@ -154,10 +193,10 @@ public class TestGetOverview {
         JSONArray array = overviewBefore.toJson();
         JSONObject obj = TestUtils.getDummyBAFOverview(array);
         assertNull(obj);
-        
+
         // Start the BAF computation
         String commandId = DummyBulkAction.startBulkActionWithDocs("SELECT * FROM File");
-        
+
         // Get overview, we should have our DummyBulkAction
         BgActivitiesOverview overviewAfter = fetcher.fetchOverview();
         assertNotNull(overviewAfter);
@@ -165,31 +204,29 @@ public class TestGetOverview {
         obj = TestUtils.getDummyBAFOverview(array);
         assertNotNull(obj);
         assertTrue(obj.getLong("running") == 1);
-        
+
         // Stop the computation
         DummyBulkAction.stopBulkAction();
         // Wait all is stopped
         DummyBulkAction.awaitCompletion(commandId);
-        
+
         // We don't have anything running (either not there at all, or nothing running
         BgActivitiesOverview overviewEnd = fetcher.fetchOverview();
         assertNotNull(overviewEnd);
         array = overviewEnd.toJson();
         obj = TestUtils.getDummyBAFOverview(array);
-        if(obj != null) {
+        if (obj != null) {
             assertTrue(obj.getLong("running") == 0);
         }
-        
-    }
-    
 
-    
+    }
+
     @Test
     public void tesWithSeveralBAF() throws Exception {
-        
+
         // Create a couple of documents for the BAF even if they are not used
         TestUtils.createDocsAndSaveSession(3, session, "/", "File");
-        
+
         InfoFetcher fetcher = InfoFetcher.getInstance();
 
         // Get overview. Should not have our BAF overview
@@ -198,37 +235,37 @@ public class TestGetOverview {
         JSONArray array = overviewBefore.toJson();
         JSONObject obj = TestUtils.getDummyBAFOverview(array);
         assertNull(obj);
-        
+
         // Start the BAF computation
         String commandId1 = DummyBulkAction.startBulkActionWithDocs("SELECT * FROM File");
         String commandId2 = DummyBulkAction.startBulkActionWithDocs("SELECT * FROM File");
         String commandId3 = DummyBulkAction.startBulkActionWithDocs("SELECT * FROM File");
-        
+
         // Get overview, we should have our DummyBulkAction
         BgActivitiesOverview overviewAfter = fetcher.fetchOverview();
         assertNotNull(overviewAfter);
         array = overviewAfter.toJson();
-                        
+
         obj = TestUtils.getDummyBAFOverview(array);
         assertNotNull(obj);
         assertTrue(obj.getLong("running") == 3);
-                
+
         // Stop the computation
         DummyBulkAction.stopBulkAction();
         // Wait all is stopped
         DummyBulkAction.awaitCompletion(commandId1);
         DummyBulkAction.awaitCompletion(commandId2);
         DummyBulkAction.awaitCompletion(commandId3);
-        
+
         // We don't have anything running (either not there at all, or nothing running
         BgActivitiesOverview overviewEnd = fetcher.fetchOverview();
         assertNotNull(overviewEnd);
         array = overviewEnd.toJson();
         obj = TestUtils.getDummyBAFOverview(array);
-        if(obj != null) {
+        if (obj != null) {
             assertTrue(obj.getLong("running") == 0);
         }
-        
+
     }
 
 }
